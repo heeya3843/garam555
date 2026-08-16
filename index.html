@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>울산동구보건소 「절주하이소(所)」 의견조사 - 가람정</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
   :root{
     --primary:#6366f1; --primary2:#8b5cf6; --pink:#ec4899;
@@ -58,7 +58,7 @@
   .section-title{font-weight:bold;margin:24px 0 10px;color:#374151;font-size:16px;}
   .hidden{display:none;}
   .loading{text-align:center;color:var(--muted);padding:30px;}
-  .err{color:#dc2626;font-size:13px;margin-top:8px;text-align:center;}
+  .err{color:#dc2626;font-size:13px;margin-top:8px;text-align:center;}.charts-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:10px;}.chart-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;}.chart-card h4{margin:0 0 10px;font-size:14px;color:#374151;}.chart-card canvas{max-height:220px;}.opinion-item{background:#fff;border:1px solid #e5e7eb;border-left:4px solid var(--primary);border-radius:8px;padding:12px 14px;margin-bottom:10px;font-size:14px;}.opinion-item .meta{color:var(--muted);font-size:12px;margin-bottom:4px;}.opinion-empty{color:var(--muted);font-size:14px;text-align:center;padding:16px;}@media print{.toolbar,.stat-bar,#surveyView,#thanksView{display:none !important;}body{background:#fff;}.wrap{max-width:100%;padding:0;}.card-stat{-webkit-print-color-adjust:exact;print-color-adjust:exact;}.q,.chart-card,.opinion-item,table{break-inside:avoid;}}
 </style>
 </head>
 <body>
@@ -175,19 +175,19 @@
   <div id="statsView" class="hidden">
     <div class="stats-head"><h2>📊 가람정 실적 통계</h2></div>
     <div class="toolbar">
-      <select id="yearSelect" onchange="renderStats()"></select>
-      <button class="excel" onclick="exportExcel()">📥 엑셀 다운로드 (3시트)</button>
+      <select id="yearSelect" onchange="renderStats();renderCharts();renderOpinions();renderCharts();renderOpinions();"></select><select id="monthSelect" onchange="renderCharts();renderOpinions();"><option value="">전체(연간)</option><option value="1">1월</option><option value="2">2월</option><option value="3">3월</option><option value="4">4월</option><option value="5">5월</option><option value="6">6월</option><option value="7">7월</option><option value="8">8월</option><option value="9">9월</option><option value="10">10월</option><option value="11">11월</option><option value="12">12월</option></select>
+      <button class="excel" onclick="exportExcel()">📥 엑셀 다운로드 (선택 기간)</button><button class="excel" style="background:#111827;" onclick="window.print()">🖨️ PDF로 저장 (선택 기간)</button>
       <button class="back" onclick="backToSurvey()">← 설문으로</button>
     </div>
     <div class="cards">
       <div class="card-stat"><div class="label">전체 응답 수 (누적)</div><div class="val" id="totalCount">-</div></div>
-      <div class="card-stat"><div class="label">선택 연도 응답 수</div><div class="val" id="yearCount">-</div></div>
+      <div class="card-stat"><div class="label">선택 연도 응답 수</div><div class="val" id="yearCount">-</div></div><div class="card-stat"><div class="label">선택 기간(연도+월) 응답 수</div><div class="val" id="periodCount">-</div></div>
     </div>
     <div class="section-title">📅 월별 실적 (<span id="yearLabel"></span>년)</div>
     <table><thead><tr><th>월</th><th>응답 수</th></tr></thead><tbody id="monthlyBody"></tbody></table>
     <div class="section-title">📈 연도별 전체 실적 (~2035년)</div>
     <table><thead><tr><th>연도</th><th>응답 수</th></tr></thead><tbody id="yearlyBody"></tbody></table>
-    <div id="statsLoading" class="loading">데이터를 불러오는 중...</div>
+    <div class="section-title">📊 문항별 응답 분포 (<span id="periodLabel"></span>)</div><div id="chartsWrap" class="charts-grid"></div><div class="section-title">📝 주관식 의견 (<span id="periodLabel2"></span>)</div><div id="opinionsWrap"></div><div id="statsLoading" class="loading">데이터를 불러오는 중...</div>
   </div>
 </div>
 <script>
@@ -277,7 +277,7 @@
     sel.innerHTML='';
     for(let y=startY; y<=2035; y++){ const o=document.createElement('option'); o.value=y; o.textContent=y+'년'; sel.appendChild(o); }
     sel.value = nowY <= 2035 ? nowY : 2035;
-    renderStats();
+    renderStats();renderCharts();renderOpinions();
   }
 
   function renderStats(){
@@ -301,13 +301,13 @@
     for(let y=startY; y<=2035; y++){ yb.insertAdjacentHTML('beforeend', '<tr><td>'+y+'년</td><td>'+((yearly[y]||0)).toLocaleString()+'</td></tr>'); }
   }
 
-  function exportExcel(){
-    if(!allRows.length){ alert('내보낼 데이터가 없습니다.'); return; }
+  function getFilteredRows(){const year=parseInt(document.getElementById('yearSelect').value,10);const monthSel=document.getElementById('monthSelect').value;return allRows.filter(r=>{if(!r.created_at)return false;const d=new Date(r.created_at);if(d.getFullYear()!==year)return false;if(monthSel!==''&&(d.getMonth()+1)!==parseInt(monthSel,10))return false;return true;});}function periodText(){const year=document.getElementById('yearSelect').value;const monthSel=document.getElementById('monthSelect').value;return monthSel===''?(year+'년 전체'):(year+'년 '+monthSel+'월');}let chartInstances=[];function renderCharts(){const filtered=getFilteredRows();document.getElementById('periodCount').textContent=filtered.length.toLocaleString();document.getElementById('periodLabel').textContent=periodText();chartInstances.forEach(c=>c.destroy());chartInstances=[];const wrap=document.getElementById('chartsWrap');wrap.innerHTML='';const qs=[{key:'q1_heard',title:'1. 절주하이소 인지/참여 경험'},{key:'q3_benefit',title:'3. 받은 혜택'},{key:'q5_gender',title:'5. 성별'},{key:'q6_age',title:'6. 연령대'},{key:'q7_know_highrisk',title:'7. 고위험 음주 기준 인지'},{key:'q8_self_highrisk',title:'8. 본인 고위험 음주 여부'},{key:'q9_reason',title:'9. 참여 주된 이유'},{key:'q10_improve',title:'10. 음주습관 개선 도움'},{key:'q11_rejoin',title:'11. 향후 재참여 의향'}];if(HAS_DIET){qs.push({key:'q_diet_select',title:'12. 날씬하이소 메뉴 선택'});qs.push({key:'q_diet_obesity',title:'13. 비만예방 도움'});}qs.forEach(q=>{const counts={};filtered.forEach(r=>{const v=r[q.key];if(v!==null&&v!==undefined&&v!==''){counts[v]=(counts[v]||0)+1;}});const labels=Object.keys(counts);const card=document.createElement('div');card.className='chart-card';const h4=document.createElement('h4');h4.textContent=q.title;card.appendChild(h4);if(!labels.length){const empty=document.createElement('div');empty.className='opinion-empty';empty.textContent='응답 없음';card.appendChild(empty);wrap.appendChild(card);return;}const canvas=document.createElement('canvas');card.appendChild(canvas);wrap.appendChild(card);const chart=new Chart(canvas.getContext('2d'),{type:'bar',data:{labels:labels,datasets:[{label:'응답 수',data:labels.map(l=>counts[l]),backgroundColor:'#6366f1'}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});chartInstances.push(chart);});}function renderOpinions(){const filtered=getFilteredRows();document.getElementById('periodLabel2').textContent=periodText();const wrap=document.getElementById('opinionsWrap');wrap.innerHTML='';const items=filtered.filter(r=>r.q12_opinion&&r.q12_opinion.trim());if(!items.length){wrap.innerHTML='<div class="opinion-empty">등록된 주관식 의견이 없습니다.</div>';return;}items.slice().reverse().forEach(r=>{const div=document.createElement('div');div.className='opinion-item';const meta=document.createElement('div');meta.className='meta';meta.textContent=r.created_at?new Date(r.created_at).toLocaleString('ko-KR'):'';const text=document.createElement('div');text.textContent=r.q12_opinion;div.appendChild(meta);div.appendChild(text);wrap.appendChild(div);});}function exportExcel(){
+    const rows_ = getFilteredRows();if(!rows_.length){ alert('선택한 기간('+periodText()+')에 내보낼 데이터가 없습니다.'); return; }
     const wb = XLSX.utils.book_new();
     let header = ['번호','응답일시','식당','1.인지/참여','2.절주목표(병)','3.혜택','4.동행인원(명)','5.성별','6.연령대','7.고위험기준 인지','8.본인 고위험 여부','9.참여이유','10.개선도움','11.재참여의향'];
     if(HAS_DIET){ header = header.concat(['12.날씬하이소 선택','13.비만예방 도움']); }
     header.push('자유의견');
-    const rows = allRows.map((r,i)=>{
+    const rows = rows_.map((r,i)=>{
       const base = [i+1, r.created_at?new Date(r.created_at).toLocaleString('ko-KR'):'', r.restaurant||'',
         r.q1_heard||'', r.q2_goal_bottles??'', r.q3_benefit||'', r.q4_companions??'',
         r.q5_gender||'', r.q6_age||'', r.q7_know_highrisk||'', r.q8_self_highrisk||'',
@@ -323,10 +323,10 @@
     const summary = [];
     summary.push(['「절주하이소(所)」 의견조사 요약','']);
     summary.push(['식당', RESTAURANT]);
-    summary.push(['전체 응답 수', allRows.length]);
+    summary.push(['선택 기간', periodText()]);summary.push(['선택 기간 응답 수', rows_.length]);summary.push(['전체 누적 응답 수', allRows.length]);
     summary.push(['생성일', new Date().toLocaleString('ko-KR')]);
     summary.push(['','']);
-    const countBy = (key)=>{ const m={}; allRows.forEach(r=>{ const v=r[key]; if(v!==null&&v!==undefined&&v!=='') m[v]=(m[v]||0)+1; }); return m; };
+    const countBy = (key)=>{ const m={}; rows_.forEach(r=>{ const v=r[key]; if(v!==null&&v!==undefined&&v!=='') m[v]=(m[v]||0)+1; }); return m; };
     const addCat = (title,key)=>{ summary.push([title,'응답 수']); const m=countBy(key); const ks=Object.keys(m);
       if(!ks.length) summary.push(['(응답 없음)','']); ks.forEach(k=>summary.push([k,m[k]])); summary.push(['','']); };
     addCat('1. 절주하이소 인지/참여 경험','q1_heard');
@@ -339,7 +339,7 @@
     addCat('10. 음주습관 개선 도움','q10_improve');
     addCat('11. 향후 재참여 의향','q11_rejoin');
     if(HAS_DIET){ addCat('12. 날씬하이소 메뉴 선택','q_diet_select'); addCat('13. 비만예방 도움','q_diet_obesity'); }
-    const avg = (key)=>{ const v=allRows.map(r=>r[key]).filter(x=>typeof x==='number'); return v.length?(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1):'-'; };
+    const avg = (key)=>{ const v=rows_.map(r=>r[key]).filter(x=>typeof x==='number'); return v.length?(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1):'-'; };
     summary.push(['항목','값']);
     summary.push(['2. 평균 절주 목표(병)', avg('q2_goal_bottles')]);
     summary.push(['4. 평균 동행 인원(명)', avg('q4_companions')]);
@@ -347,22 +347,22 @@
     const yearly={}; const mby={};
     allRows.forEach(r=>{ if(!r.created_at)return; const d=new Date(r.created_at); const y=d.getFullYear();
       yearly[y]=(yearly[y]||0)+1; const ym=y+'-'+String(d.getMonth()+1).padStart(2,'0'); mby[ym]=(mby[ym]||0)+1; });
-    summary.push(['연도별 실적','응답 수']);
+    summary.push(['연도별 실적(전체 누적)','응답 수']);
     Object.keys(yearly).sort().forEach(y=>summary.push([y+'년', yearly[y]]));
     summary.push(['','']);
-    summary.push(['월별 실적','응답 수']);
+    summary.push(['월별 실적(전체 누적)','응답 수']);
     Object.keys(mby).sort().forEach(ym=>summary.push([ym, mby[ym]]));
     const ws2 = XLSX.utils.aoa_to_sheet(summary); ws2['!cols']=[{wch:30},{wch:16}];
     XLSX.utils.book_append_sheet(wb, ws2, '요약');
 
     const subj = [['번호','응답일시','자유의견']];
-    allRows.forEach((r,i)=>{ if(r.q12_opinion && r.q12_opinion.trim()) subj.push([i+1, r.created_at?new Date(r.created_at).toLocaleString('ko-KR'):'', r.q12_opinion]); });
+    rows_.forEach((r,i)=>{ if(r.q12_opinion && r.q12_opinion.trim()) subj.push([i+1, r.created_at?new Date(r.created_at).toLocaleString('ko-KR'):'', r.q12_opinion]); });
     if(subj.length===1) subj.push(['','','(주관식 응답 없음)']);
     const ws3 = XLSX.utils.aoa_to_sheet(subj); ws3['!cols']=[{wch:8},{wch:20},{wch:70}];
     XLSX.utils.book_append_sheet(wb, ws3, '주관식');
 
     const today = new Date().toISOString().slice(0,10);
-    XLSX.writeFile(wb, RESTAURANT+'_절주하이소_실적_'+today+'.xlsx');
+    XLSX.writeFile(wb, RESTAURANT+'_절주하이소_'+periodText().replace(/\s/g,'')+'_'+today+'.xlsx');
   }
 </script>
 </body>
