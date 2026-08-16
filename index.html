@@ -14,8 +14,8 @@
   *{box-sizing:border-box;}
   body{margin:0;font-family:'Malgun Gothic','맑은 고딕',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;}
   .wrap{max-width:720px;margin:0 auto;padding:24px 16px 60px;}
-  h1{text-align:center;color:var(--primary);font-size:24px;margin:18px 0 4px;line-height:1.4;}
-  .subtitle{text-align:center;color:var(--primary2);font-size:18px;font-weight:bold;margin-bottom:18px;}
+  h1{text-align:center;font-size:32px;font-weight:900;margin:20px 0 6px;line-height:1.35;letter-spacing:-.5px;background:linear-gradient(90deg,var(--primary),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .subtitle{text-align:center;font-size:23px;font-weight:900;color:var(--pink);letter-spacing:2px;margin-bottom:20px;text-shadow:0 2px 8px rgba(236,72,153,.25);}
   .intro{background:var(--card);border-radius:12px;padding:18px 20px;margin-bottom:8px;font-size:14px;color:#374151;}
   .intro strong{display:block;margin-bottom:8px;color:#111827;}
   .divider{border:none;border-top:3px solid var(--primary);margin:18px 0 22px;}
@@ -58,7 +58,7 @@
   .section-title{font-weight:bold;margin:24px 0 10px;color:#374151;font-size:16px;}
   .hidden{display:none;}
   .loading{text-align:center;color:var(--muted);padding:30px;}
-  .err{color:#dc2626;font-size:13px;margin-top:8px;text-align:center;}.charts-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:10px;}.chart-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;}.chart-card h4{margin:0 0 10px;font-size:14px;color:#374151;}.chart-card canvas{max-height:220px;}.opinion-item{background:#fff;border:1px solid #e5e7eb;border-left:4px solid var(--primary);border-radius:8px;padding:12px 14px;margin-bottom:10px;font-size:14px;}.opinion-item .meta{color:var(--muted);font-size:12px;margin-bottom:4px;}.opinion-empty{color:var(--muted);font-size:14px;text-align:center;padding:16px;}.period-display{background:#eef1f8;border-left:4px solid var(--primary);border-radius:8px;padding:10px 16px;font-size:15px;font-weight:bold;color:var(--primary);margin-bottom:16px;}.summary-box{background:#fff;border:1px solid #e5e7eb;border-left:4px solid var(--primary2);border-radius:12px;padding:18px 20px;font-size:14px;line-height:1.9;color:#374151;white-space:pre-line;}#chartsSectionTitle{page-break-before:always;break-before:page;}@media print{.toolbar,.stat-bar,#surveyView,#thanksView{display:none !important;}body{background:#fff;}.wrap{max-width:100%;padding:0;}.card-stat{-webkit-print-color-adjust:exact;print-color-adjust:exact;}.q,.chart-card,.opinion-item,table{break-inside:avoid;}}
+  .err{color:#dc2626;font-size:13px;margin-top:8px;text-align:center;}.charts-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:10px;}.chart-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;}.chart-card h4{margin:0 0 10px;font-size:14px;color:#374151;}.chart-card canvas{max-height:220px;}.opinion-item{background:#fff;border:1px solid #e5e7eb;border-left:4px solid var(--primary);border-radius:8px;padding:12px 14px;margin-bottom:10px;font-size:14px;}.opinion-item .meta{color:var(--muted);font-size:12px;margin-bottom:4px;}.opinion-empty{color:var(--muted);font-size:14px;text-align:center;padding:16px;}.period-display{background:#eef1f8;border-left:4px solid var(--primary);border-radius:8px;padding:10px 16px;font-size:15px;font-weight:bold;color:var(--primary);margin-bottom:16px;}.summary-box{background:#fff;border:1px solid #e5e7eb;border-left:4px solid var(--primary2);border-radius:12px;padding:18px 20px;font-size:14px;line-height:1.9;color:#374151;white-space:pre-line;}#chartsSectionTitle{page-break-before:always;break-before:page;}.health-slogans{background:linear-gradient(135deg,#eef0ff,#ffe9f5);border:2px dashed var(--primary2);border-radius:14px;padding:16px 18px;margin-bottom:18px;text-align:center;font-size:14px;font-weight:bold;color:#4c1d95;line-height:1.9;}@media print{.toolbar,.stat-bar,#surveyView,#thanksView{display:none !important;}body{background:#fff;}.wrap{max-width:100%;padding:0;}.card-stat{-webkit-print-color-adjust:exact;print-color-adjust:exact;}.q,.chart-card,.opinion-item,table{break-inside:avoid;}}
 </style>
 </head>
 <body>
@@ -71,7 +71,7 @@
       지역 내 건강한 음주 문화 조성을 위해 운영 중인 「절주하이소(所)」사업의 효과를 파악하고, 향후 개선 방향을 마련하기 위해 설문조사를 실시합니다.<br><br>
       응답 내용은 통계 분석 목적으로만 활용됩니다.
     </div>
-    <hr class="divider">
+    <div class="health-slogans">🦦 3.3.3. 칫솔질 실천(식후 3분이내, 하루3번이상, 3분이상) · 🍶 절주하이소 · 🚭 금연하이소<br>🥗 날씬하이소 · 🩺 자기혈관숫자 알기(혈압·혈당·콜레스테롤)<br><strong>울산 동구주민분들 모두 건강하이소~!! 🎉</strong></div><hr class="divider">
     <form id="surveyForm">
 
       <div class="q">
@@ -187,7 +187,7 @@
     <table><thead><tr><th>월</th><th>응답 수</th></tr></thead><tbody id="monthlyBody"></tbody></table>
     <div class="section-title">📈 연도별 전체 실적</div>
     <table><thead><tr><th>연도</th><th>응답 수</th></tr></thead><tbody id="yearlyBody"></tbody></table>
-    <div class="section-title" id="chartsSectionTitle">📊 문항별 응답 분포 (<span id="periodLabel"></span>)</div><div id="chartsWrap" class="charts-grid"></div><div class="section-title">📝 주관식 의견 (<span id="periodLabel2"></span>)</div><div id="opinionsWrap"></div><div class="section-title">🧾 종합평가</div><div id="summaryWrap" class="summary-box"></div><div id="statsLoading" class="loading">데이터를 불러오는 중...</div>
+    <div class="section-title" id="chartsSectionTitle">📊 문항별 응답 분포 (<span id="periodLabel"></span>)</div><div id="chartsWrap" class="charts-grid"></div><div class="section-title">📝 주관식 의견 (<span id="periodLabel2"></span>)</div><div id="opinionsWrap"></div><div class="section-title">🧾 종합평가</div><div id="summaryWrap" class="summary-box"></div><div style="text-align:center;margin-top:24px;"><button class="back" onclick="backToSurvey()">← 설문으로 돌아가기</button></div><div id="statsLoading" class="loading">데이터를 불러오는 중...</div>
   </div>
 </div>
 <script>
