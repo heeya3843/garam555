@@ -303,7 +303,7 @@
   .opinion-empty { color: var(--muted); font-size: 14px; text-align: center; padding: 16px; }
   .period-display { background: #eef2ff; border-left: 4px solid var(--primary); border-radius: 10px; padding: 12px 18px; font-size: 15px; font-weight: 800; color: var(--primary); margin-bottom: 18px; }
   .summary-box { background: #ffffff; border: 1px solid #e2e8f0; border-left: 4px solid var(--primary2); border-radius: 14px; padding: 20px; font-size: 14px; line-height: 1.9; color: #334155; white-space: pre-line; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-  #chartsSectionTitle { page-break-before: always; break-before: page; }
+  #chartsSectionTitle, #summarySectionTitle { page-break-before: always; break-before: page; }
 
   @media print {
     .header, .toolbar, .stat-bar, #surveyView, #thanksView { display: none !important; }
@@ -477,7 +477,7 @@
     <div id="chartsWrap" class="charts-grid"></div>
     <div class="section-title">📝 주관식 의견 (<span id="periodLabel2"></span>)</div>
     <div id="opinionsWrap"></div>
-    <div class="section-title">🧾 종합평가</div>
+    <div class="section-title" id="summarySectionTitle">🧾 종합평가</div>
     <div id="summaryWrap" class="summary-box"></div>
     <div style="text-align:center;margin-top:24px;"><button class="back" onclick="backToSurvey()">← 설문으로 돌아가기</button></div>
     <div id="statsLoading" class="loading">데이터를 불러오는 중...</div>
@@ -673,7 +673,7 @@
           datasets: [{
             label: '응답 수',
             data: labels.map(l => counts[l]),
-            backgroundColor: CHART_COLORS[qi % CHART_COLORS.length]
+            backgroundColor: labels.map((l, li) => CHART_COLORS[(qi + li) % CHART_COLORS.length])
           }]
         },
         options: {
